@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+	<bean name="propertiesService" class="egovframework.rte.fdl.property.impl.EgovPropertyServiceImpl" destroy-method="destroy">
+		<property name="properties">
+	        <map>
+	        	<entry key="sessionSec"			value="1800"/>				<!-- 1800초 = 30분 설정 -->
+				<entry key="uploadPath" 		value="/user_home/upload/sicims"/>
+	        	<entry key="maxUploadSize"		value="1073741824" />		<!--	1024MB	-->
+
+	        	<entry key="uploadExt" 		    value="hwp,pdf,jpg,png,gif,xlsx,xls,zip,egg,avi,mp4"/>
+				<!-- Crownix ReporitngServer 서비스 URL -->
+	        	<entry key="reportingServer" 	value="http://115.84.166.163:8080/ReportingServer"/>
+
+
+	        	<!-- 화면 페이징 표시 갯수 -->
+	        	<entry key="pageUnit" 	value="10"/>
+	        	<!-- 화면에 표시되는 목록 갯수 -->
+	        	<entry key="pageSize" 	value="10"/>
+ 			</map>
+		</property>
+	</bean>
+
+	<beans profile="local">
+		<bean name="propertiesService" class="egovframework.rte.fdl.property.impl.EgovPropertyServiceImpl" destroy-method="destroy">
+			<property name="properties">
+		        <map>
+		        	<entry key="sessionSec"			value="1800"/>									<!-- 1800초 = 30분 설정 -->
+					<entry key="uploadPath" 		value="E://upload/sicims"/>
+		        	<entry key="maxUploadSize"		value="1073741824" />							<!--	1024MB	-->
+
+		        	<entry key="uploadExt" 		    value="hwp,pdf,jpg,png,gif,xlsx,xls,zip,egg,avi,mp4"/>
+
+					<!-- Crownix ReporitngServer 서비스 URL -->
+		        	<entry key="reportingServer" 	value="http://localhost:8080/ReportingServer"/>
+
+		        	<!-- 화면 페이징 표시 갯수 -->
+		        	<entry key="pageUnit" 	value="10"/>
+		        	<!-- 화면에 표시되는 목록 갯수 -->
+		        	<entry key="pageSize" 	value="10"/>
+	 			</map>
+			</property>
+		</bean>
+	</beans>
+
+
+</beans>
