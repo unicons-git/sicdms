@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+	<aop:config>
+		<aop:pointcut id="serviceMethod" expression="execution(* egovframework..impl.*Impl.*(..))
+												  or execution(* com.g3way.sicims..*ServiceImpl.*(..))
+												  or execution(* com.g3way.sicims.services..*Impl.*(..))
+												  " />
+		<aop:aspect ref="exceptionTransfer">
+			<aop:after-throwing throwing="exception" pointcut-ref="serviceMethod" method="transfer" />
+		</aop:aspect>
+	</aop:config>
+
+	<bean id="exceptionTransfer" class="egovframework.rte.fdl.cmmn.aspect.ExceptionTransfer">
+		<property name="exceptionHandlerService">
+			<list>
+				<ref bean="defaultExceptionHandleManager" />
+				<ref bean="otherExceptionHandleManager" />
+			</list>
+		</property>
+	</bean>
+	<bean id="selectAspect" class="com.g3way.sicims.interceptor.SessionUserAspect"/>
+	<aop:config>
+		<aop:pointcut id="selectPointcut" expression="execution(* com.g3way.sicims..*Impl.select*(..))
+												   or execution(* com.g3way.sicims..*Impl.get*(..))
+												   "/>
+
+ 		<aop:aspect ref="selectAspect">
+            <aop:before pointcut-ref="selectPointcut" method="beforeMethod"/>
+        </aop:aspect>
+	</aop:config>
+
+<!--
+	<bean id="updateAspect" class="com.g3way.sicims.interceptor.SessionUserAspect"/>
+	<aop:config>
+	  <aop:pointcut id="updatePointcut" expression="execution(* com.g3way.sicims..*ServiceImpl.save*(..))
+	  											 or execution(* com.g3way.sicims..*ServiceImpl.delete*(..))
+	  										     or execution(* com.g3way.sicims..*ServiceImpl.update*(..))
+	  										     or execution(* com.g3way.sicims..*ServiceImpl.insert*(..))
+	  										     or execution(* com.g3way.sicims..*ServiceImpl.process*(..))" />
+ 		<aop:aspect ref="updateAspect">
+            <aop:before pointcut-ref="updatePointcut" method="beforeMethod"/>
+        </aop:aspect>
+	</aop:config>
+
+	<bean id="updateTableBefore" class="com.g3way.sicims.interceptor.UpdateAspect"/>
+	<aop:config>
+	  <aop:pointcut id="updateBeforePointcut" expression="!execution(* com.g3way.sicims.services..*LogDaoImpl.*(..))
+	  												and (  execution(* com.g3way.sicims..*DaoImpl.save*(..))
+	  													or execution(* com.g3way.sicims..*DaoImpl.delete*(..))
+	  													or execution(* com.g3way.sicims..*DaoImpl.update*(..))
+	  													or execution(* com.g3way.sicims..*DaoImpl.insert*(..))
+	  													or execution(* com.g3way.sicims..*DaoImpl.process*(..)))" />
+ 		<aop:aspect ref="updateTableBefore">
+            <aop:before pointcut-ref="updateBeforePointcut" method="beforeMethod"/>
+        </aop:aspect>
+	</aop:config>
+
+	<bean id="updateTableAfter" class="com.g3way.sicims.interceptor.UpdateAspect"/>
+	<aop:config>
+		<aop:pointcut id="updateAfterPointcut" expression="!execution(* com.g3way.sicims.services..*LogDaoImpl.*(..))
+													   and (
+														    execution(* com.g3way.sicims..*DaoImpl.save*(..))
+	  													 or execution(* com.g3way.sicims..*DaoImpl.delete*(..))
+	  													 or execution(* com.g3way.sicims..*DaoImpl.update*(..))
+	  													 or execution(* com.g3way.sicims..*DaoImpl.insert*(..))
+	  													 or execution(* com.g3way.sicims..*DaoImpl.process*(..)))" />
+ 		<aop:aspect ref="updateTableAfter">
+            <aop:after pointcut-ref="updateAfterPointcut" method="afterMethod"/>
+        </aop:aspect>
+	</aop:config>
+ -->
+
+	<bean id="defaultExceptionHandleManager" class="egovframework.rte.fdl.cmmn.exception.manager.DefaultExceptionHandleManager">
+		<property name="reqExpMatcher">
+			<ref bean="antPathMater"/>
+		</property>
+		<property name="patterns">
+			<list>
+				<value>**services..*</value>
+			</list>
+		</property>
+		<property name="handlers">
+			<list>
+				<ref bean="egovHandler" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="otherExceptionHandleManager" class="egovframework.rte.fdl.cmmn.exception.manager.DefaultExceptionHandleManager">
+		<property name="reqExpMatcher">
+			<ref bean="antPathMater"/>
+		</property>
+		<property name="patterns">
+			<list>
+				<value>**services..*</value>
+			</list>
+		</property>
+		<property name="handlers">
+			<list>
+				<ref bean="otherHandler" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="egovHandler" 	class="egovframework.egov.EgovExcepHndlr" />
+	<bean id="otherHandler" class="egovframework.egov.EgovOthersExcepHndlr" />
+
+	<aop:aspectj-autoproxy/>
+</beans>

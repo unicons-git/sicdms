@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %5p [%c] %m%n" />
+        </Console>
+    </Appenders>
+    <Loggers>
+    	<Root level="INFO">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="file" />
+        </Root>
+        <Logger name="java.sql" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="file" />
+        </Logger>
+        <Logger name="egovframework" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="file" />
+        </Logger>
+          <!-- log SQL with timing information, post execution -->
+        <Logger name="jdbc.sqltiming" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="file" />
+        </Logger>
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="file" />
+        </Logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.LoginMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.LogMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims000CmMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims110KcMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims120GbMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims130ScMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims140BdMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims150OpMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims200AnMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims300CcMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims500CbMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims910UserMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims920BnnrMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims930MenuMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+		<logger name="com.g3way.sicims.mybatis.mappers.Sicims940IfMapper" level="DEBUG" additivity="false">
+			<appender-ref ref="console" />
+		</logger>
+
+    </Loggers>
+</Configuration>

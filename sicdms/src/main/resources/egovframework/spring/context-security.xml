@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:egov-security="http://www.egovframe.go.kr/schema/egov-security"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd
+		http://www.egovframe.go.kr/schema/egov-security http://www.egovframe.go.kr/schema/egov-security/egov-security-3.7.xsd">
+
+
+<!--
+수정일      			수정자				수정내용
+=========	======= 		=================================================
+2011.09.07		서준식				일반, 업무사용자의 경우 조직아이디가 없어 로그인이 안되던 문제 수정(SQL 수정)
+2011.09.25		서준식				usersByUsernameQuery 쿼리의 조직 아이디 비교 부분  오류 수정 > alias 추가
+2014.06.13		Vincent Han		표준프레임워크 3.0 적용 (간소화 설정 사용)
+2017.07.10      장동한            실행행환경 v3.7 적용[보안기능 추가(sniff, xFrameOptions, xssProtection csrf)]
+-->
+
+ 	<security:http pattern="/resources/**" 		security="none"/>
+ 	<security:http pattern="/sicims000Cm/**"	security="none"/>
+<!--    	<security:http pattern="/sicims000Cm/**" 	security="none"/> -->
+ 	<security:http pattern="\A/WEB-INF/views/.*\Z" request-matcher="regex" security="none"/>
+<!--  	<security:http pattern="*.do" auto-config="true" use-expressions="true">
+	<security:custom-filter before="FILTER_SECURITY_INTERCEPTOR"  ref="ajaxSessionTimeoutFilter"/>
+	</security:http> -->
+
+	<egov-security:config id="securityConfig"
+		loginUrl="/login/login.do"
+		logoutSuccessUrl="/main.do"
+		loginFailureUrl="/login/loginFail.do?login_error=1"
+		accessDeniedUrl="/sicims000Cm/accessDenied.do"
+
+		dataSource="dataSource"
+		jdbcUsersByUsernameQuery="
+		SELECT
+				  cuv.user_id
+				, cuv.user_pswd
+				, cuv.user_nm
+				, cuv.inst1_cd
+				, cuv.inst2_cd
+				, inst1.lwtrk_inst_nm as inst1_nm
+				, inst2.lwtrk_inst_nm as inst2_nm
+				, cuv.last_lgn_ymd
+				, cuv.aprv_yn
+				, cuv.use_yn
+				, cuv.authrt_cd
+				, cat.authrt_nm
+		FROM	CM_USER_V cuv
+		LEFT 	JOIN CM_ATHR_T cat ON (cat.authrt_cd = cuv.authrt_cd)
+		LEFT	JOIN CM_INST_T inst1 ON (inst1.inst_cd = cuv.inst1_cd AND inst1.mtnabn_yn = '0')
+		LEFT	JOIN CM_INST_T inst2 ON (inst2.inst_cd = cuv.inst2_cd AND inst2.mtnabn_yn = '0')
+		WHERE	cuv.user_id = ?"
+
+		jdbcAuthoritiesByUsernameQuery="
+		SELECT
+				  cst.user_id 		AS user_id
+				, cst.authrt_cd 	AS authority
+		FROM	(
+				SELECT	CASE WHEN authrt_cd = 'ROLE_ECMP' THEN 'ecmp'
+							 ELSE user_id
+						END		AS user_id
+				FROM	CM_USER_V
+				WHERE 	user_id = ?
+				) cuv
+		INNER 	JOIN CM_SCRT_T cst ON (cst.user_id = cuv.user_id)"
+
+		jdbcMapClass="egovframework.com.sec.security.common.EgovSessionMapping"
+
+		requestMatcherType="regex"
+		hash="plaintext"
+		hashBase64="false"
+
+		concurrentMaxSessons="1"
+		concurrentExpiredUrl="/login/loginExpired.do"
+
+		defaultTargetUrl="/login/loginSuccess.do"
+
+	/>
+
+	<!-- <bean id="ajaxSessionTimeoutFilter" class="egovframework.com.sec.security.filter.AjaxSessionCheckFilter">
+		<property name="ajaxHeader" value="AJAX" />
+	</bean> -->
+
+
+	<egov-security:secured-object-config id="securedObjectConfig"
+		sqlHierarchicalRoles="
+			SELECT	DISTINCT
+					  a.chld_role 	AS child
+					, a.prnt_role	AS parent
+			FROM 	CM_RHRC_T a
+			LEFT 	JOIN CM_RHRC_T b ON (b.prnt_role = a.chld_role)"
+
+		sqlRolesAndUrl="
+			SELECT 	  a.role_ptrn AS url
+					, b.authrt_cd AS authority
+			FROM 	CM_ROLE_T a
+			INNER	JOIN CM_RATH_T b ON(b.role_cd = a.role_cd)
+			WHERE 	a.role_ty = 'url'
+			ORDER BY a.role_sort, a.role_cd"
+
+		sqlRolesAndMethod="
+			SELECT 	  a.role_ptrn AS url
+					, b.authrt_cd AS authority
+			FROM 	CM_ROLE_T a
+			INNER	JOIN CM_RATH_T b ON(b.role_cd = a.role_cd)
+			WHERE 	a.role_ty = 'method'
+			ORDER BY a.role_sort, a.role_cd"
+
+		sqlRolesAndPointcut="
+			SELECT 	  a.role_ptrn AS url
+					, b.authrt_cd AS authority
+			FROM 	CM_ROLE_T a
+			INNER	JOIN CM_RATH_T b ON(b.role_cd = a.role_cd)
+			WHERE 	a.role_ty = 'pointcut'
+			ORDER BY a.role_sort, a.role_cd"
+
+		sqlRegexMatchedRequestMapping="
+			SELECT 	  a.role_ptrn AS url
+					, b.authrt_cd AS authority
+			FROM 	CM_ROLE_T a
+			INNER	JOIN CM_RATH_T b ON(b.role_cd = a.role_cd)
+			WHERE 	a.role_ty = 'regex'
+			ORDER BY a.role_sort, a.role_cd"
+	/>
+
+	<egov-security:initializer id="initializer" supportMethod="true" supportPointcut="false" />
+
+	<!-- URL에 세미콜론(semicolon)허용 여부(기본값/false) -->
+	<!--
+	<bean id="egovStrictHttpFirewall" class="org.springframework.security.web.firewall.StrictHttpFirewall">
+		<property name="allowSemicolon" value="true"/>
+	</bean>
+	<security:http-firewall ref="egovStrictHttpFirewall"/>
+	-->
+
+	<bean id="webexpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler">
+		<!-- <property name="defaultRolePrefix" value="" /> -->
+	</bean>
+
+</beans>
