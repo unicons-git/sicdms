@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.g3way.sicims.mybatis.mappers.LogMapper">
+	<!--
+	================================
+	  공통.1  로그정보 관리
+	================================
+	 -->
+
+	<resultMap id="cmLogResultMap" type="com.g3way.sicims.services.sicims900Sys.log.vo.CmLogVo" >
+		<!--  웹로그정보 -->
+		<result column="log_sn"				property="logSn"			jdbcType="DECIMAL" />
+		<result column="scrn_nm"			property="scrnNm"			jdbcType="VARCHAR" />
+		<result column="param_cn"			property="paramCn"			jdbcType="VARCHAR" />
+		<result column="log_yr"				property="logYr"			jdbcType="VARCHAR" />
+		<result column="log_ym"				property="logYm"			jdbcType="VARCHAR" />
+		<result column="log_ymd"			property="logYmd"			jdbcType="VARCHAR" />
+		<result column="log_dt"				property="logDt"			jdbcType="VARCHAR" />
+		<!-- 메인로그정보 -->
+		<result column="mlog_sn"			property="mlogSn"			jdbcType="DECIMAL" />
+		<result column="mlog_scrn_nm"		property="mlogScrnNm"		jdbcType="VARCHAR" />
+		<result column="tbl_nm"				property="tblNm"			jdbcType="VARCHAR" />
+		<result column="sql_whr_cn"			property="sqlWhrCn"			jdbcType="VARCHAR" />
+		<!-- 서브로그정보 -->
+		<result column="slog_sn"			property="slogSn"			jdbcType="DECIMAL" />
+		<result column="col_nm"				property="colNm"			jdbcType="VARCHAR" />
+		<result column="updt_bfr_cn"		property="updtBfrCn"		jdbcType="VARCHAR" />
+		<result column="updt_aftr_cn"		property="updtAftrCn"		jdbcType="VARCHAR" />
+		<result column="use_yn"				property="useYn"       		jdbcType="VARCHAR" />
+		<result column="updt_ymd"			property="updtYmd"       	jdbcType="VARCHAR" />
+		<result column="updusr_id"			property="updusrId"       	jdbcType="VARCHAR" />
+		<result column="updusr_ip"			property="updusrIp"       	jdbcType="VARCHAR" />
+		<result column="rmrk"				property="rmrk"       		jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="cmLogExtendsResultMap" type="com.g3way.sicims.services.sicims900Sys.log.vo.CmLogVo" extends="com.g3way.sicims.mybatis.mappers.LogMapper.cmLogResultMap">
+		<result column="page"				property="page"				jdbcType="DECIMAL" />
+		<result column="total_count"		property="totalCount"		jdbcType="DECIMAL" />
+	</resultMap>
+
+
+	<!-- 사용자접속로그 정보를  등록한다.  -->
+	<insert id= "insertCmAlog" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		INSERT INTO CM_ALOG_L(
+				  log_dt
+				, user_nm
+				, log_yr
+				, log_ym
+				, log_ymd
+				, log_page
+				, updusr_id
+				, updusr_ip
+				, rmrk
+		) VALUES (
+				  SYSDATE
+				, #{userNm,		jdbcType=VARCHAR}
+				, TO_CHAR(SYSDATE, 'YYYY')
+				, TO_CHAR(SYSDATE, 'YYYYMM')
+				, TO_CHAR(SYSDATE, 'YYYYMMDD')
+				, #{logPage,	jdbcType=VARCHAR}
+				, #{updusrId,	jdbcType=VARCHAR}
+				, #{updusrIp,	jdbcType=VARCHAR}
+				, #{rmrk,		jdbcType=VARCHAR}
+		)
+	</insert>
+
+
+	<!-- 웹접속로그 정보를  등록한다.  -->
+	<insert id= "insertCmWlog" parameterType="com.g3way.sicims.services.sicims900Sys.log.vo.CmLogVo" >
+		<selectKey keyProperty="logSn"  resultType="java.math.BigDecimal" order="BEFORE" >
+			SELECT CM_WLOG_L_SQ.nextval FROM DUAL
+		</selectKey>
+		INSERT INTO CM_WLOG_L(
+				  log_sn				/* 웹로그순번 */
+				, scrn_nm				/* 웹화면명 */
+				, param_cn				/* 패러미터내용 */
+				, log_yr				/* 접속년도 */
+				, log_ym				/* 접속연월 */
+				, log_ymd				/* 접속일자 */
+				, log_dt				/* 접속일시 */
+				, updusr_id				/* 갱신자ID */
+				, updusr_ip				/* 갱신자IP */
+		) VALUES (
+				  #{logSn,			jdbcType=DECIMAL}
+				, #{scrnNm,			jdbcType=VARCHAR}
+				, #{paramCn,		jdbcType=VARCHAR}
+				, TO_CHAR(SYSDATE, 	'YYYY')
+				, TO_CHAR(SYSDATE, 	'YYYYMM')
+				, TO_CHAR(SYSDATE, 	'YYYYMMDD')
+				, SYSDATE
+				, #{updusrId,		jdbcType=VARCHAR}
+				, #{updusrIp,		jdbcType=VARCHAR}
+		)
+	</insert>
+
+
+
+	<!-- 데이터수정 메인로그를 등록한다.  -->
+	<insert id= "insertCmMlog" parameterType="com.g3way.sicims.services.sicims900Sys.log.vo.CmLogVo" >
+		<selectKey keyProperty="mlogSn"  resultType="java.math.BigDecimal" order="BEFORE" >
+			SELECT	CM_MLOG_L_SQ.nextval FROM DUAL
+		</selectKey>
+		INSERT INTO CM_MLOG_L (
+				  mlog_sn   		/* 메인로그순번 */
+				, mlog_scrn_nm    	/* 메인로그화면명 */
+				, tbl_nm			/* 테이블이름 */
+				, sql_whr_cn		/* SQL조건절내용 */
+				, updt_ymd   		/* 갱신일자 */
+				, updusr_id			/* 갱신자ID */
+				, updusr_ip			/* 갱신자IP */
+				, rmrk				/* 비고 */
+		) VALUES (
+				  #{mlogSn,			jdbcType=DECIMAL}
+				, #{mlogScrnNm,		jdbcType=VARCHAR}
+				, #{tblNm,			jdbcType=VARCHAR}
+				, #{sqlWhrCn,		jdbcType=VARCHAR}
+				, TO_CHAR(SYSDATE,'YYYYMMDD')
+				, #{updusrId,		jdbcType=VARCHAR}
+				, #{updusrIp,		jdbcType=VARCHAR}
+				, #{rmrk,			jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<!-- 데이터수정 서브 로그를 등록한다.  -->
+	<insert id= "insertCmSlog" parameterType="com.g3way.sicims.services.sicims900Sys.log.vo.CmLogVo" >
+		<selectKey keyProperty="slogSn"  resultType="java.math.BigDecimal" order="BEFORE" >
+			SELECT	CAST(COALESCE(MAX(slog_sn), 0) AS NUMERIC) + 1
+			FROM 	CM_SLOG_L
+			WHERE 	mlog_sn =  CAST(#{mlogSn} AS DECIMAL)
+		</selectKey>
+		INSERT INTO CM_SLOG_L (
+				  mlog_sn   		/* 메인로그순번 */
+				, slog_sn    		/* 서브로그순번 */
+				, col_nm			/* 컬럼명 */
+				, updt_bfr_cn		/* 갱신전내용 */
+				, updt_aftr_cn		/* 갱신후내용 */
+				, updt_ymd   		/* 갱신일자 */
+				, updusr_id			/* 갱신자ID */
+				, updusr_ip			/* 갱신자IP */
+				, rmrk				/* 비고 */
+		) VALUES (
+				  #{mlogSn,		jdbcType=DECIMAL}
+				, #{slogSn,		jdbcType=DECIMAL}
+				, #{colNm,		jdbcType=VARCHAR}
+				, #{updtBfrCn,	jdbcType=VARCHAR}
+				, #{updtAftrCn,	jdbcType=VARCHAR}
+				, TO_CHAR(SYSDATE,'YYYYMMDD')
+				, #{updusrId,	jdbcType=VARCHAR}
+				, #{updusrIp,	jdbcType=VARCHAR}
+				, #{rmrk,		jdbcType=VARCHAR}
+		)
+	</insert>
+
+
+
+	<select id="getTblDataList" parameterType="hashmap" resultType="hashmap">
+		SELECT	*
+		<choose>
+			<!-- ==============================	시스템관리 ==============================	-->
+			<!-- 사용자 관리 -->
+			<when test= 'tblNm != null and tblNm == "cm_user_t"'>
+				FROM	CM_USER_T
+				WHERE	user_id = #{userId}
+			</when>
+
+			<!-- 사용자 권한 -->
+			<when test= 'tblNm != null and tblNm == "cm_scrt_t"'>
+				FROM	CM_SCRT_T
+				WHERE	user_id = #{userId}
+			</when>
+
+			<!-- 권한 권한 -->
+			<when test= 'tblNm != null and tblNm == "cm_athr_t"'>
+				FROM	CM_ATHR_T
+				WHERE	authrt_cd = #{authrtCd}
+			</when>
+
+			<!-- 권한 계층 정보 -->
+			<when test= 'tblNm != null and tblNm == "cm_rhrc_t"'>
+				FROM	CM_RHRC_T
+				WHERE 	chld_role = #{authrtCd}
+				<if test='insertRgstAuthorList != null and insertRgstAuthorList.size > 0 '>
+					AND prnt_role IN
+			        <foreach collection="insertRgstAuthorList" item="item" index="index" separator="," open="(" close=")">
+			        	#{item}
+		    		</foreach>
+    			</if>
+    			<if test='deleteAuthorYn != null and deleteAuthorYn == "Y" '>
+					OR prnt_role = #{authrtCd}
+				</if>
+				<if test='deleteRgstAuthorList != null and deleteRgstAuthorList.size > 0 '>
+					AND  prnt_role IN
+			        <foreach collection="deleteRgstAuthorList" item="item" index="index" separator="," open="(" close=")">
+			        #{item}
+		    		</foreach>
+				</if>
+    		</when>
+
+			<!-- 권한 롤 권한 -->
+			<when test= 'tblNm != null and tblNm == "cm_rath_t"'>
+						FROM	CM_RATH_T
+				<choose>
+					<when test='deleteRoleYn != null and deleteRoleYn == "Y"'>
+						WHERE 	role_cd = #{roleCd}
+					</when>
+					<when test='insertRgstRoleList != null and insertRgstRoleList.size > 0 '>
+						WHERE 	authrt_cd = #{authrtCd}
+							AND role_cd IN
+				        <foreach collection="insertRgstRoleList" item="item" index="index" separator="," open="(" close=")">
+				        		#{item}
+			    		</foreach>
+					</when>
+					<when test='deleteRgstRoleList != null and deleteRgstRoleList.size > 0 '>
+						WHERE 	authrt_cd = #{authrtCd}
+							AND role_cd IN
+						<foreach collection="deleteRgstRoleList" item="item" index="index" separator="," open="(" close=")">
+					        	#{item}
+			    		</foreach>
+			    	</when>
+					<otherwise>
+						WHERE 1= 0
+					</otherwise>
+				</choose>
+			</when>
+
+			<!-- 롤 관리 -->
+			<when test= 'tblNm != null and tblNm == "cm_role_t"'>
+				FROM 	CM_ROLE_T
+				WHERE 	role_cd =  #{roleCd}
+			</when>
+
+			<!-- ==============================	시스템관리 ==============================	-->
+			<otherwise>
+				FROM 	CM_ATHR_T
+				WHERE 	1 = 0
+			</otherwise>
+		</choose>
+	</select>
+
+
+</mapper>

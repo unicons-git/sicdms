@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+	<!-- SqlSession setup for MyBatis Database Layer -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations">
+			<list>
+		 		<value>classpath:/com/g3way/sicims/mybatis/mappers/*.xml</value>
+			</list>
+		</property>
+		<!-- 칼럼의 값이 null 일때  칼럼 값을 리턴하지 않는 것을 방지하기 위해서 설정 -->
+        <property name="configLocation" 	value="classpath:com/g3way/sicims/mybatis/mybatis-config.xml" />
+	</bean>
+
+ 	<bean class="egovframework.rte.psl.dataaccess.mapper.MapperConfigurer">
+		<property name="basePackage" value="com.g3way.sicims" />
+	</bean>
+
+</beans>

@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.g3way.sicims.mybatis.mappers.LoginMapper">
+	<!--
+	================================
+	  공통.1  로그인정보 관리
+	================================
+	 -->
+
+	<resultMap id="cmUserVoResultMap" type="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		<result column="user_id"			property="userId"			jdbcType="VARCHAR" />
+		<result column="user_pswd"			property="userPswd"			jdbcType="VARCHAR" />
+		<result column="user_nm"			property="userNm"			jdbcType="VARCHAR" />
+		<result column="hrsc_rplc_key"		property="hrscRplcKey"		jdbcType="VARCHAR" />
+		<result column="inst1_cd"			property="inst1Cd"			jdbcType="CHAR" />
+		<result column="inst2_cd"			property="inst2Cd"			jdbcType="CHAR" />
+		<result column="dept_nm"			property="deptNm"			jdbcType="VARCHAR" />
+		<result column="telno"				property="telno"			jdbcType="VARCHAR" />
+		<result column="eml_addr"			property="emlAddr"			jdbcType="VARCHAR" />
+		<result column="user_se"			property="userSe"			jdbcType="CHAR" />
+		<result column="frst_reg_dt"		property="frstRegDt"		jdbcType="CHAR" />
+		<result column="last_lgn_ymd"		property="lastLgnYmd"		jdbcType="CHAR" />
+		<result column="pswd_chg_ymd"		property="pswdChgYmd"		jdbcType="CHAR" />
+		<result column="pswd_err_cnt"		property="pswdErrCnt"		jdbcType="DECIMAL" />
+		<result column="autzr_id"			property="autzrId"			jdbcType="VARCHAR" />
+		<result column="aprv_yn"			property="aprvYn"			jdbcType="CHAR" />
+		<result column="aprv_dt"			property="aprvDt"			jdbcType="CHAR" />
+		<result column="authrt_chg_ymd"		property="authrtChgYmd"		jdbcType="CHAR" />
+		<result column="whdwl_ymd"			property="whdwlYmd"			jdbcType="CHAR" />
+		<result column="whdwl_rsn"			property="whdwlRsn"			jdbcType="VARCHAR" />
+		<result column="use_yn"				property="useYn"			jdbcType="CHAR" />
+		<result column="updt_ymd"			property="updtYmd"			jdbcType="CHAR" />
+		<result column="updusr_id"			property="updusrId"			jdbcType="VARCHAR" />
+		<result column="updusr_ip"			property="updusrIp"			jdbcType="VARCHAR" />
+		<result column="rmrk"				property="rmrk"				jdbcType="VARCHAR" />
+		<result column="authrt_cd"			property="authrtCd"       	jdbcType="VARCHAR" />
+	</resultMap>
+
+
+	<!-- 사용자 정보를 조회한다.  -->
+	<select id="getLoginInfo" parameterType="hashmap" resultMap="cmUserVoResultMap">
+		SELECT
+				  user_id			/* 사용자ID		*/
+				, user_pswd			/* 사용자비밀번호		*/
+				, user_nm			/* 사용자명			*/
+				, hrsc_rplc_key		/* 인사대체키		*/
+				, inst1_cd			/* 기관1코드		*/
+				, inst2_cd			/* 기관2코드		*/
+				, dept_nm			/* 부서명			*/
+				, telno				/* 전화번호			*/
+				, eml_addr			/* 이메일주소		*/
+				, user_se			/* 사용자구분		*/
+				, authrt_cd			/* 권한코드			*/
+				, frst_reg_dt		/* 최초등록일시		*/
+				, last_lgn_ymd		/* 최종로그인일자		*/
+				, pswd_chg_ymd		/* 비밀번호변경일자	*/
+				, pswd_err_cnt		/* 비밀번호오류수		*/
+				, autzr_id			/* 승인자ID		*/
+				, aprv_yn			/* 승인여부			*/
+				, aprv_dt			/* 승인일시			*/
+				, authrt_chg_ymd	/* 권한변경일자		*/
+				, whdwl_ymd			/* 탈퇴일자			*/
+				, whdwl_rsn			/* 탈퇴사유			*/
+				, use_yn			/* 사용여부    		*/
+				, updt_ymd			/* 갱신일자    		*/
+				, updusr_id			/* 갱신자ID		*/
+				, updusr_ip			/* 갱신자IP		*/
+				, rmrk				/* 비고			*/
+		FROM	CM_USER_V
+		WHERE	user_id = #{userId}
+		<if test="userPswd != null">
+			AND (user_pswd = #{userPswd} OR (whdwl_ymd IS NOT NULL AND use_yn = 'N'))
+		</if>
+			AND rownum = 1
+ 	</select>
+
+
+	<!-- 사용자 아이디에 해당 권한 부여되어 있는지 조회한다. -->
+	<select id="getCmRhrcInfo" parameterType="hashmap" resultType="Integer">
+		WITH SEARCH_RHRC(chld_role, prnt_role) AS (
+			SELECT	rhrc.chld_role, rhrc.prnt_role
+			FROM	CM_RHRC_T rhrc, CM_SCRT_T scrt, CM_USER_V usr
+			WHERE	rhrc.chld_role 	= scrt.authrt_cd
+				AND	scrt.user_id 	= case when usr.authrt_cd = 'ROLE_ECMP' then 'ecmp' ELSE usr.user_id END
+				AND usr.user_id 	= #{userId}
+			UNION ALL
+			SELECT 	rhrc.chld_role, rhrc.prnt_role
+			FROM 	CM_RHRC_T rhrc, SEARCH_RHRC srch
+			WHERE 	rhrc.chld_role = srch.prnt_role
+		)
+		SELECT	COUNT(1) AS cnt
+		FROM	SEARCH_RHRC srch
+		JOIN	CM_ATHR_T athr ON (athr.authrt_cd = srch.prnt_role)
+		WHERE	athr.authrt_cd =  #{authrtCd}
+ 	</select>
+
+
+	<!-- 사용자 로그인 실패시 패스워드 오류를 증가한다. -->
+	<update id="updateLoginFail" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		UPDATE 	CM_USER_T
+		SET		pswd_err_cnt = COALESCE(pswd_err_cnt, 0) + 1
+		WHERE	user_id = #{userId}
+	</update>
+
+
+	<!-- 사용자 로그인 성공시 마지막로그인일자와 패스워드 오류를 수정한다. -->
+	<update id="updateLoginSuccess" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		UPDATE 	CM_USER_T
+		SET		last_lgn_ymd = to_char(SYSDATE,'YYYYMMDD') 		/* 마지막로그인일자 */
+				, pswd_err_cnt = 0								/* 비밀번호오류횟수 초기화 */
+		WHERE	user_id = #{userId}
+	</update>
+
+
+	<!-- 사용자 정보를  등록한다.  -->
+	<insert id= "insertCmUser" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		INSERT INTO CM_USER_T (
+				  user_id			/* 사용자ID		*/
+				, user_pswd			/* 사용자비밀번호		*/
+				, user_nm			/* 사용자명			*/
+				, hrsc_rplc_key		/* 인사대체키		*/
+				, inst1_cd			/* 기관1코드		*/
+				, inst2_cd			/* 기관2코드		*/
+				, dept_nm			/* 부서명			*/
+				, telno				/* 전화번호			*/
+				, eml_addr			/* 이메일주소		*/
+				, user_se			/* 사용자구분		*/
+				, authrt_cd			/* 권한코드			*/
+				, frst_reg_dt		/* 최초등록일시		*/
+				, last_lgn_ymd		/* 최종로그인일자		*/
+				, pswd_chg_ymd		/* 비밀번호변경일자	*/
+				, pswd_err_cnt		/* 비밀번호오류수		*/
+				, autzr_id			/* 승인자ID		*/
+				, aprv_yn			/* 승인여부			*/
+				, aprv_dt			/* 승인일시			*/
+				, authrt_chg_ymd	/* 권한변경일자		*/
+				, whdwl_ymd			/* 탈퇴일자			*/
+				, whdwl_rsn			/* 탈퇴사유			*/
+				, use_yn   			/* 사용여부			*/
+				, updt_ymd 			/* 갱신일자			*/
+				, updusr_id			/* 갱신자ID		*/
+				, updusr_ip			/* 갱신자IP		*/
+				, rmrk				/* 비고			*/
+		) VALUES (
+				  #{userId,			jdbcType=VARCHAR}
+				, #{userPswd,		jdbcType=VARCHAR}
+				, #{userNm,			jdbcType=VARCHAR}
+				, #{hrscRplcKey,	jdbcType=CHAR}
+				, #{inst1Cd,		jdbcType=CHAR}
+				, #{inst2Cd,		jdbcType=CHAR}
+				, #{deptNm,			jdbcType=VARCHAR}
+				, #{telno,			jdbcType=VARCHAR}
+				, #{emlAddr,		jdbcType=VARCHAR}
+				, #{userSe,			jdbcType=CHAR}
+				, #{authrtCd,		jdbcType=VARCHAR}
+				, to_char(sysdate, 	'YYYYMMDDHH24MISS')
+				, null
+				, null
+				, 0
+				, null
+				, 'N'
+				, null
+				, null
+				, null
+				, null
+				, 'Y'
+				, to_char(sysdate, 	'YYYYMMDD')
+				, #{updusrId,		jdbcType=VARCHAR}
+				, #{updusrIp,		jdbcType=VARCHAR}
+				, null
+		)
+	</insert>
+
+ 	<!-- 사용자 정보를  수정한다.  -->
+	<update id="updateCmUser" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		UPDATE 	CM_USER_T
+		SET
+				 user_nm			= #{userNm,			jdbcType=VARCHAR}	/* 사용자명	 		*/
+			<if test = 'userPswd != null and userPswd != ""'>
+				, user_pswd			= #{userPswd,		jdbcType=VARCHAR}	/* 사용자비밀번호 		*/
+			</if>
+				, inst1_cd			= #{inst1Cd,		jdbcType=CHAR}		/* 기관1코드	 	*/
+				, inst2_cd			= #{inst2Cd,		jdbcType=CHAR}		/* 기관1코드	 	*/
+				, hrsc_rplc_key		= #{hrscRplcKey,	jdbcType=VARCHAR}	/* 인사대체키 		*/
+				, dept_nm			= #{deptNm,			jdbcType=VARCHAR}	/* 부서명	 		*/
+				, telno				= REPLACE(#{telno},  	'-', '')		/* 전화번호			*/
+				, eml_addr			= #{emlAddr,		jdbcType=VARCHAR}	/* 이메일주소		*/
+				, user_se			= #{userSe,			jdbcType=CHAR}		/* 사용자구분		*/
+				, updt_ymd			= TO_CHAR(sysdate,'YYYYMMDD')			/* 갱신일자 		*/
+				, updusr_id			= #{updusrId,		jdbcType=VARCHAR}	/* 갱신자ID		*/
+				, updusr_ip			= #{updusrIp,		jdbcType=VARCHAR}	/* 갱신자IP		*/
+				, rmrk				= #{rmrk,			jdbcType=VARCHAR}	/* 비고			*/
+		WHERE	user_id = #{userId}
+	</update>
+
+	<!-- 사용자 패스워드를 변경한다.  -->
+	<update id="updatePswd" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		UPDATE 	CM_USER_T
+		SET
+				  user_pswd		= #{userPswd,	jdbcType=VARCHAR}		/* 사용자비밀번호 		*/
+				, pswd_err_cnt	= 0										/* 패스워드 오류 		*/
+				, pswd_chg_ymd	= TO_CHAR(sysdate,'YYYYMMDD')			/* 비밀번호변경일자	*/
+				, updt_ymd		= TO_CHAR(sysdate,'YYYYMMDD')			/* 갱신일자 		*/
+				, updusr_id		= #{userId,		jdbcType=VARCHAR}		/* 갱신자ID		*/
+				, updusr_ip		= #{updusrIp,	jdbcType=VARCHAR}		/* 갱신자IP		*/
+		WHERE	user_id = #{userId}
+	</update>
+
+
+	<!-- 외부사용자 패스워드를 변경한다.  -->
+	<update id="ecmpUpdatePswd" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		UPDATE 	CC_CSMA_T
+		SET
+				  exmn_bzenty_pic_pswd	= #{userPswd,	jdbcType=VARCHAR}		/* 사용자비밀번호 		*/
+				, updt_ymd				= TO_CHAR(sysdate,'YYYYMMDD')			/* 갱신일자 		*/
+				, updusr_ip				= #{updusrIp,	jdbcType=VARCHAR}		/* 갱신자IP		*/
+				, rmrk					= '외부사용자 비밀번호 변경'
+		WHERE	exmn_bzenty_pic_eml_addr = #{userId}
+	</update>
+
+
+
+	<!-- 사용자 패스워드를 변경한다.  -->
+	<update id="updateCmUserPswd" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		UPDATE 	CM_USER_T
+		SET
+				  user_pswd		= #{userPswd,	jdbcType=VARCHAR}		/* 사용자비밀번호 		*/
+				, pswd_err_cnt	= 0										/* 패스워드 오류 		*/
+				, pswd_chg_ymd	= TO_CHAR(sysdate,'YYYYMMDD')			/* 비밀번호변경일자	*/
+				, updt_ymd		= TO_CHAR(sysdate,'YYYYMMDD')			/* 갱신일자 		*/
+				, updusr_id		= #{updusrId,	jdbcType=VARCHAR}		/* 갱신자ID		*/
+				, updusr_ip		= #{updusrIp,	jdbcType=VARCHAR}		/* 갱신자IP		*/
+		WHERE	user_id = #{userId}
+	</update>
+
+
+	<!-- 사용자 정보를 삭제한다.  -->
+	<update id="deleteCmUser" parameterType="hashmap">
+		UPDATE 	CM_USER_T
+		SET
+				  user_pswd		= null			/* 사용자비밀번호		*/
+				, user_nm		= null			/* 사용자명			*/
+				, hrsc_rplc_key	= null			/* 인사대체키		*/
+				, inst1_cd		= null			/* 기관1코드		*/
+				, inst2_cd		= null			/* 기관2코드		*/
+				, dept_nm		= null			/* 부서명			*/
+				, telno			= null			/* 전화번호			*/
+				, eml_addr		= null			/* 이메일주소		*/
+				, user_se		= null			/* 사용자구분		*/
+				, frst_reg_dt	= null			/* 최초등록일시		*/
+				, last_lgn_ymd	= null			/* 최종로그인일자		*/
+				, pswd_chg_ymd	= null			/* 비밀번호변경일자	*/
+				, pswd_err_cnt	= null			/* 비밀번호오류수		*/
+				, autzr_id		= null			/* 승인자ID		*/
+				, aprv_yn		= null			/* 승인여부			*/
+				, aprv_dt		= null			/* 승인일시			*/
+				, authrt_chg_ymd= null			/* 권한변경일자		*/
+				, whdwl_ymd		= TO_CHAR(sysdate,'YYYYMMDD')		/* 탈퇴일자			*/
+				, whdwl_rsn		= #{whdwlRsn,	jdbcType=VARCHAR}	/* 탈퇴사유			*/
+				, use_yn   		= 'N'								/* 사용여부			*/
+				, updt_ymd 		= TO_CHAR(sysdate,'YYYYMMDD')		/* 갱신일자			*/
+				, updusr_id		= #{updusrId,	jdbcType=VARCHAR}	/* 갱신자ID		*/
+				, updusr_ip		= #{updusrIp,	jdbcType=VARCHAR}	/* 갱신자IP		*/
+				, rmrk			= #{rmrk,		jdbcType=VARCHAR}	/* 비고			*/
+		WHERE	user_id = #{userId}
+	</update>
+
+
+
+
+	<!-- 인사대체키로 사용자 아이디를 조회한다.  -->
+	<select id="getUserId" parameterType="hashmap" resultMap="cmUserVoResultMap">
+		SELECT
+				user_id, user_nm
+		FROM	CM_USER_T
+		WHERE	user_nm = #{userNm}
+			AND hrsc_rplc_key = #{hrscRplcKey}
+ 	</select>
+
+
+</mapper>

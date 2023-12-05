@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.g3way.sicims.mybatis.mappers.Sicims910UserMapper">
+	<!--
+	================================
+	  1. 사용자정보 관리
+	================================
+	 -->
+
+	<resultMap id="cmUserResultMap" type="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		<result column="user_id"			property="userId"			jdbcType="VARCHAR" />
+		<result column="user_pswd"			property="userPswd"			jdbcType="VARCHAR" />
+		<result column="user_nm"			property="userNm"			jdbcType="VARCHAR" />
+		<result column="hrsc_rplc_key"		property="hrscRplcKey"		jdbcType="VARCHAR" />
+		<result column="inst1_cd"			property="inst1Cd"			jdbcType="CHAR" />
+		<result column="inst2_cd"			property="inst2Cd"			jdbcType="CHAR" />
+		<result column="dept_nm"			property="deptNm"			jdbcType="VARCHAR" />
+		<result column="telno"				property="telno"			jdbcType="VARCHAR" />
+		<result column="eml_addr"			property="emlAddr"			jdbcType="VARCHAR" />
+		<result column="user_se"			property="userSe"			jdbcType="CHAR" />
+		<result column="frst_reg_dt"		property="frstRegDt"		jdbcType="CHAR" />
+		<result column="last_lgn_ymd"		property="lastLgnYmd"		jdbcType="CHAR" />
+		<result column="pswd_chg_ymd"		property="pswdChgYmd"		jdbcType="CHAR" />
+		<result column="pswd_err_cnt"		property="pswdErrCnt"		jdbcType="DECIMAL" />
+		<result column="autzr_id"			property="autzrId"			jdbcType="VARCHAR" />
+		<result column="aprv_yn"			property="aprvYn"			jdbcType="CHAR" />
+		<result column="aprv_dt"			property="aprvDt"			jdbcType="CHAR" />
+		<result column="authrt_chg_ymd"		property="authrtChgYmd"		jdbcType="CHAR" />
+		<result column="whdwl_ymd"			property="whdwlYmd"			jdbcType="CHAR" />
+		<result column="whdwl_rsn"			property="whdwlRsn"			jdbcType="VARCHAR" />
+		<result column="use_yn"				property="useYn"			jdbcType="CHAR" />
+		<result column="updt_ymd"			property="updtYmd"			jdbcType="CHAR" />
+		<result column="updusr_id"			property="updusrId"			jdbcType="VARCHAR" />
+		<result column="updusr_ip"			property="updusrIp"			jdbcType="VARCHAR" />
+		<result column="rmrk"				property="rmrk"				jdbcType="VARCHAR" />
+
+		<result column="inst1_nm"			property="inst1Nm"			jdbcType="VARCHAR" />
+		<result column="inst2_nm"			property="inst2Nm"			jdbcType="VARCHAR" />
+		<result column="user_se_nm"			property="userSeNm"			jdbcType="VARCHAR" />
+		<result column="authrt_cd"			property="authrtCd"			jdbcType="VARCHAR" />
+		<result column="authrt_nm"			property="authrtNm"			jdbcType="VARCHAR" />
+
+		<result column="seq_no"				property="seqNo"			jdbcType="DECIMAL" />
+		<result column="page"				property="page"				jdbcType="DECIMAL" />
+		<result column="total_count"		property="totalCount"		jdbcType="DECIMAL" />
+	</resultMap>
+
+
+	<!-- 사용자 목록을 조회한다.  -->
+	<select id="getCmUserList" parameterType="hashmap" resultMap="cmUserResultMap">
+		SELECT
+				  user_id			/* 사용자ID		*/
+				, user_pswd			/* 사용자비밀번호		*/
+				, user_nm			/* 사용자명			*/
+				, hrsc_rplc_key		/* 인사대체키		*/
+				, inst1_cd			/* 기관1코드		*/
+				, inst2_cd			/* 기관2코드		*/
+				, dept_nm			/* 부서명			*/
+				, telno				/* 전화번호			*/
+				, eml_addr			/* 이메일주소		*/
+				, user_se			/* 사용자구분		*/
+				, authrt_cd 		/* 권한코드			*/
+				, frst_reg_dt		/* 최초등록일시		*/
+				, last_lgn_ymd		/* 최종로그인일자		*/
+				, pswd_chg_ymd		/* 비밀번호변경일자	*/
+				, pswd_err_cnt		/* 비밀번호오류수		*/
+				, autzr_id			/* 승인자ID		*/
+				, aprv_yn			/* 승인여부			*/
+				, aprv_dt			/* 승인일시			*/
+				, authrt_chg_ymd	/* 권한변경일자		*/
+				, whdwl_ymd			/* 탈퇴일자			*/
+				, whdwl_rsn			/* 탈퇴사유			*/
+				, use_yn			/* 사용여부    		*/
+				, updt_ymd			/* 갱신일자    		*/
+				, updusr_id			/* 갱신자ID		*/
+				, updusr_ip			/* 갱신자IP		*/
+				, rmrk				/* 비고			*/
+				, getCodeNm('CM', '1001', inst1_cd)		AS inst1_nm
+				, getCodeNm('CM', '1002', inst2_cd)		AS inst2_nm
+				, getCodeNm('CM', '0003', user_se) 		AS user_se_nm
+				, getCodeNm('CM', '0004', authrt_cd) 	AS authrt_nm
+		FROM	CM_USER_T
+		WHERE	user_id != 'ADMIN'
+			<if test="inst1Cd != null and inst1Cd != '' ">
+				AND inst1_cd = #{inst1Cd}
+			</if>
+			<if test="inst2Cd != null and inst2Cd != '' ">
+				AND inst2_cd = #{inst2Cd}
+			</if>
+			<if test="useYn != null and useYn != '' ">
+				AND use_yn = #{useYn}
+			</if>
+		ORDER BY user_id
+	</select>
+
+	<!-- 사용자 목록을 조회한다.  -->
+	<select id="selectCmUserList" parameterType="hashmap" resultMap="cmUserResultMap">
+		SELECT
+				  user_id			/* 사용자ID		*/
+				, user_pswd			/* 사용자비밀번호		*/
+				, user_nm			/* 사용자명			*/
+				, hrsc_rplc_key		/* 인사대체키		*/
+				, inst1_cd			/* 기관1코드		*/
+				, inst2_cd			/* 기관2코드		*/
+				, dept_nm			/* 부서명			*/
+				, telno				/* 전화번호			*/
+				, eml_addr			/* 이메일주소		*/
+				, user_se			/* 사용자구분		*/
+				, authrt_cd 		/* 권한코드			*/
+				, frst_reg_dt		/* 최초등록일시		*/
+				, last_lgn_ymd		/* 최종로그인일자		*/
+				, pswd_chg_ymd		/* 비밀번호변경일자	*/
+				, pswd_err_cnt		/* 비밀번호오류수		*/
+				, autzr_id			/* 승인자ID		*/
+				, aprv_yn			/* 승인여부			*/
+				, aprv_dt			/* 승인일시			*/
+				, authrt_chg_ymd	/* 권한변경일자		*/
+				, whdwl_ymd			/* 탈퇴일자			*/
+				, whdwl_rsn			/* 탈퇴사유			*/
+				, use_yn			/* 사용여부    		*/
+				, updt_ymd			/* 갱신일자    		*/
+				, updusr_id			/* 갱신자ID		*/
+				, updusr_ip			/* 갱신자IP		*/
+				, rmrk				/* 비고			*/
+				, getCodeNm('CM', '1001', inst1_cd)		AS inst1_nm
+				, getCodeNm('CM', '1002', inst2_cd)		AS inst2_nm
+				, getCodeNm('CM', '0003', user_se) 		AS user_se_nm
+				, getCodeNm('CM', '0004', authrt_cd) 	AS authrt_nm
+				, getSeqNo(page, cast(#{rows} AS NUMERIC), rownum) 	AS seq_no		/* 일련번호		*/
+				, page												AS page			/* 페이지		*/
+				, total_count										AS total_count	/* 검색건수		*/
+		FROM	(
+				SELECT
+						  cut.user_id
+						, cut.user_pswd
+						, cut.user_nm
+						, cut.hrsc_rplc_key
+						, cut.inst1_cd
+						, cut.inst2_cd
+						, cut.dept_nm
+						, cut.telno
+						, cut.eml_addr
+						, cut.user_se
+						, cut.authrt_cd
+						, cut.frst_reg_dt
+						, cut.last_lgn_ymd
+						, cut.pswd_chg_ymd
+						, cut.pswd_err_cnt
+						, cut.autzr_id
+						, cut.aprv_yn
+						, cut.aprv_dt
+						, cut.authrt_chg_ymd
+						, cut.whdwl_ymd
+						, cut.whdwl_rsn
+						, cut.use_yn
+						, cut.updt_ymd
+						, cut.updusr_id
+						, cut.updusr_ip
+						, cut.rmrk
+				<choose>
+					<when test='ordSe != null and ordSe == "userNm"'>
+						, CEIL((ROW_NUMBER() OVER (ORDER BY cut.user_nm ASC NULLS LAST))/ CAST(#{rows} AS NUMERIC) ) AS page
+					</when>
+					<when test='ordSe != null and ordSe == "userId"'>
+						, CEIL((ROW_NUMBER() OVER (ORDER BY cut.user_id ASC NULLS LAST))/ CAST(#{rows} AS NUMERIC) ) AS page
+					</when>
+					<when test='ordSe != null and ordSe == "frstRegDt"'>
+						, CEIL((ROW_NUMBER() OVER (ORDER BY cut.frst_reg_dt DESC NULLS LAST))/ CAST(#{rows} AS NUMERIC) ) AS page
+					</when>
+					<when test='ordSe != null and ordSe == "aprvDt"'>
+						, CEIL((ROW_NUMBER() OVER (ORDER BY cut.aprv_dt DESC NULLS LAST))/ CAST(#{rows} AS NUMERIC) ) AS page
+					</when>
+					<otherwise>
+						, CEIL((ROW_NUMBER() OVER (ORDER BY cut.user_nm ASC NULLS LAST))/ CAST(#{rows} AS NUMERIC) ) AS page
+					</otherwise>
+				</choose>
+			         	, COUNT(*) OVER() AS total_count
+				FROM	CM_USER_T cut
+				WHERE	user_id != 'ADMIN'
+					<if test="userSe != null and userSe != '' ">
+						AND cut.user_se = #{userSe}
+					</if>
+					<if test="inst1Cd != null and inst1Cd != '' ">
+						AND cut.inst1_cd = #{inst1Cd}
+					</if>
+					<if test="inst2Cd != null and inst2Cd != '' ">
+						AND cut.inst2_cd = #{inst2Cd}
+					</if>
+					<if test="aprvYn != null and aprvYn != '' ">
+						AND cut.aprv_yn = #{aprvYn}
+					</if>
+					<if test="useYn != null and useYn != '' ">
+						AND cut.use_yn = #{useYn}
+					</if>
+					<if test="keyword != null and keyword != '' ">
+						AND (LOWER(cut.user_nm) like '%' || LOWER(#{keyword}) || '%'
+							OR LOWER(cut.user_id) like '%' || LOWER(#{keyword}) || '%'
+							)
+					</if>
+					<if test="authrtSe != null and authrtSe eq '9'.toString() ">
+						AND cut.authrt_cd IN ('ROLE_CTPV', 'ROLE_SGG')
+					</if>
+				)
+		WHERE 	page = CAST( #{page} AS NUMERIC)
+	</select>
+
+	<!-- 사용자 정보를 조회한다.  -->
+	<select id="getCmUserInfo" parameterType="hashmap" resultMap="cmUserResultMap">
+		SELECT
+				  user_id			/* 사용자ID		*/
+				, user_pswd			/* 사용자비밀번호		*/
+				, user_nm			/* 사용자명			*/
+				, hrsc_rplc_key		/* 인사대체키		*/
+				, inst1_cd			/* 기관1코드		*/
+				, inst2_cd			/* 기관2코드		*/
+				, dept_nm			/* 부서명			*/
+				, telno				/* 전화번호			*/
+				, eml_addr			/* 이메일주소		*/
+				, user_se			/* 사용자구분		*/
+				, authrt_cd			/* 권한코드			*/
+				, frst_reg_dt		/* 최초등록일시		*/
+				, last_lgn_ymd		/* 최종로그인일자		*/
+				, pswd_chg_ymd		/* 비밀번호변경일자	*/
+				, pswd_err_cnt		/* 비밀번호오류수		*/
+				, autzr_id			/* 승인자ID		*/
+				, aprv_yn			/* 승인여부			*/
+				, aprv_dt			/* 승인일시			*/
+				, authrt_chg_ymd	/* 권한변경일자		*/
+				, whdwl_ymd			/* 탈퇴일자			*/
+				, whdwl_rsn			/* 탈퇴사유			*/
+				, use_yn			/* 사용여부    		*/
+				, updt_ymd			/* 갱신일자    		*/
+				, updusr_id			/* 갱신자ID		*/
+				, updusr_ip			/* 갱신자IP		*/
+				, rmrk				/* 비고			*/
+				, getCodeNm('CM', '1001', inst1_cd)		AS inst1_nm
+				, getCodeNm('CM', '1002', inst2_cd)		AS inst2_nm
+				, getCodeNm('CM', '0003', user_se) 		AS user_se_nm
+				, getCodeNm('CM', '0004', authrt_cd) 	AS authrt_nm
+		FROM	CM_USER_T
+		WHERE   user_id = #{userId}
+		<if test="userPswd != null">
+			AND user_pswd = #{userPswd}
+		</if>
+		<if test="hrscRplcKey != null">
+			AND hrsc_rplc_key = #{hrscRplcKey}
+		</if>
+ 	</select>
+
+	<!-- 사용자 정보를  등록한다.  -->
+	<insert id="insertCmUser" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		INSERT INTO CM_USER_T (
+				  user_id			/* 사용자ID		*/
+				, user_pswd			/* 사용자비밀번호		*/
+				, user_nm			/* 사용자명			*/
+				, hrsc_rplc_key		/* 인사대체키		*/
+				, inst1_cd			/* 기관1코드		*/
+				, inst2_cd			/* 기관2코드		*/
+				, dept_nm			/* 부서명			*/
+				, telno				/* 전화번호			*/
+				, eml_addr			/* 이메일주소		*/
+				, user_se			/* 사용자구분		*/
+				, authrt_cd			/* 권한코드			*/
+				, frst_reg_dt		/* 최초등록일시		*/
+				, last_lgn_ymd		/* 최종로그인일자		*/
+				, pswd_chg_ymd		/* 비밀번호변경일자	*/
+				, pswd_err_cnt		/* 비밀번호오류수		*/
+				, autzr_id			/* 승인자ID		*/
+				, aprv_yn			/* 승인여부			*/
+				, aprv_dt			/* 승인일시			*/
+				, authrt_chg_ymd	/* 권한변경일자		*/
+				, whdwl_ymd			/* 탈퇴일자			*/
+				, whdwl_rsn			/* 탈퇴사유			*/
+				, use_yn			/* 사용여부    		*/
+				, updt_ymd			/* 갱신일자    		*/
+				, updusr_id			/* 갱신자ID		*/
+				, updusr_ip			/* 갱신자IP		*/
+				, rmrk				/* 비고			*/
+		) VALUES (
+				  #{userId,			jdbcType=VARCHAR}
+				, #{userPswd,		jdbcType=VARCHAR}
+				, #{userNm,			jdbcType=VARCHAR}
+				, #{hrscRplcKey,	jdbcType=VARCHAR}
+				, #{inst1Cd,		jdbcType=CHAR}
+				, #{inst2Cd,		jdbcType=CHAR}
+				, #{deptNm,			jdbcType=VARCHAR}
+				, REPLACE(#{telno}, '-', '')
+				, #{emlAddr,		jdbcType=VARCHAR}
+				, #{userSe,			jdbcType=CHAR}
+				, #{authrtCd,		jdbcType=CHAR}
+				, to_char(sysdate, 	'YYYYMMDDHH24MISS')
+				, null
+				, null
+				, 0
+				, #{autzrId,		jdbcType=VARCHAR}
+				, #{aprvYn,			jdbcType=CHAR}
+				, null
+				, null
+				, null
+				, #{whdwlRsn,		jdbcType=VARCHAR}
+				, #{useYn,			jdbcType=VARCHAR}
+				, to_char(sysdate, 	'YYYYMMDD')
+				, #{updusrId,		jdbcType=VARCHAR}
+				, #{updusrIp,		jdbcType=VARCHAR}
+				, #{rmrk,			jdbcType=VARCHAR}
+		)
+	</insert>
+
+ 	<!-- 사용자 정보를  수정한다.  -->
+	<update id="updateCmUser" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		UPDATE 	CM_USER_T
+		SET
+				  pswd_err_cnt		= 0
+			<if test="inst1Cd != null and inst1Cd != '' ">
+				, inst1_cd			= #{inst1Cd,		jdbcType=CHAR}		/* 기관1코드	 	*/
+			</if>
+			<if test="inst2Cd != null and inst2Cd != '' ">
+				, inst2_cd			= #{inst2Cd,		jdbcType=CHAR}		/* 기관1코드	 	*/
+			</if>
+			<if test="userSe != null and userSe != '' ">
+				, user_se			= #{userSe,			jdbcType=CHAR}		/* 사용자구분		*/
+			</if>
+			<if test="authrtCd != null and authrtCd != '' ">
+				, authrt_cd			= #{authrtCd,		jdbcType=VARCHAR}	/* 권한코드			*/
+			</if>
+			<if test="telno != null and telno != '' ">
+				, telno				= #{telno,			jdbcType=VARCHAR}	/* 전화번호			*/
+			</if>
+			<if test="emlAddr != null and emlAddr != '' ">
+				, eml_addr			= #{emlAddr,		jdbcType=VARCHAR}	/* 이메일주소		*/
+			</if>
+			<if test="aprvUpdtYn != null and aprvUpdtYn == 'Y'.toString() ">
+				, autzr_id			= #{updusrId,		jdbcType=VARCHAR}	/* 승인자ID		*/
+				, aprv_yn			= #{aprvYn,			jdbcType=CHAR}		/* 승인여부			*/
+				<choose>
+					<when test="aprvYn != null and aprvYn == 'Y'.toString() ">
+				, aprv_dt			= to_char(sysdate,'YYYYMMDD')			/* 승인일시			*/
+				, authrt_chg_ymd	= to_char(sysdate,'YYYYMMDD')			/* 권한변경일자		*/
+					</when>
+					<otherwise>
+				, aprv_dt			= null									/* 승인일시			*/
+				, authrt_chg_ymd	= null									/* 권한변경일자		*/
+					</otherwise>
+				</choose>
+			</if>
+			<if test="useYn != null and useYn == 'Y'.toString() ">
+				, whdwl_ymd			= null									/* 탈퇴일자			*/
+			</if>
+			<if test="useYn != null and useYn == 'N'.toString() ">
+				, whdwl_ymd			= to_char(sysdate,'YYYYMMDD')			/* 탈퇴일자			*/
+			</if>
+				, whdwl_rsn			= #{whdwlRsn,		jdbcType=VARCHAR}	/* 탈퇴사유			*/
+				, use_yn			= #{useYn,			jdbcType=VARCHAR}	/* 사용여부			*/
+				, updt_ymd			= to_char(sysdate,'YYYYMMDD')			/* 갱신일자 		*/
+				, updusr_id			= #{updusrId,		jdbcType=VARCHAR}	/* 갱신자ID		*/
+				, updusr_ip			= #{updusrIp,		jdbcType=VARCHAR}	/* 갱신자IP		*/
+		WHERE	user_id = #{userId}
+	</update>
+
+ 	<!-- 비밀번호를 초기화 한다. -->
+	<update id="resetPassword" parameterType="hashMap" >
+		UPDATE 	CM_USER_T
+		SET
+				user_pswd = #{userPswd,	jdbcType=VARCHAR}
+		WHERE	user_id = #{userId}
+	</update>
+
+
+	<!-- 사용자 정보를 삭제한다.  -->
+	<delete id="deleteCmUser" parameterType="hashmap">
+		DELETE 	FROM CM_USER_T
+		WHERE	user_id = #{userId}
+	</delete>
+
+
+	<!-- 사용자 승인 정보를  수정한다.  -->
+	<update id="updateCmUserApprove" parameterType="com.g3way.sicims.services.sicims910User.vo.CmUserVo" >
+		UPDATE 	CM_USER_T
+		<set>
+		<if test="aprvUpdtYn != null and aprvUpdtYn == 'Y'.toString() ">
+				, autzr_id			= #{updusrId,		jdbcType=VARCHAR}	/* 승인자ID		*/
+				, aprv_yn			= #{aprvYn,			jdbcType=CHAR}		/* 승인여부			*/
+			<choose>
+			<when test="aprvYn != null and aprvYn == 'Y'.toString() ">
+				, pswd_err_cnt		= 0										/* 비밀번호오류수		*/
+				, aprv_dt			= to_char(sysdate,'YYYYMMDD')			/* 승인일시			*/
+				, authrt_chg_ymd	= to_char(sysdate,'YYYYMMDD')			/* 권한변경일자		*/
+			</when>
+			<otherwise>
+				, aprv_dt			= null									/* 승인일시			*/
+				, authrt_chg_ymd	= null									/* 권한변경일자		*/
+			</otherwise>
+			</choose>
+		</if>
+		<if test="userSe != null and userSe != '' ">
+				, user_se			= #{userSe,			jdbcType=CHAR}		/* 사용자구분		*/
+		</if>
+		<if test="authrtCd != null and authrtCd != '' ">
+				, authrt_cd			= #{whdwlRsn,		jdbcType=VARCHAR}	/* 권한코드			*/
+		</if>
+		<if test="useYn != null and useYn == 'Y'.toString() ">
+				, whdwl_ymd			= null									/* 탈퇴일자			*/
+		</if>
+		<if test="useYn != null and useYn == 'N'.toString() ">
+				, whdwl_ymd			= to_char(sysdate,'YYYYMMDD')			/* 탈퇴일자			*/
+		</if>
+				, whdwl_rsn			= #{whdwlRsn,		jdbcType=VARCHAR}	/* 탈퇴사유			*/
+				, use_yn			= #{useYn,			jdbcType=VARCHAR}	/* 사용여부			*/
+				, updt_ymd			= to_char(sysdate,'YYYYMMDD')			/* 갱신일자 		*/
+				, updusr_id			= #{updusrId,		jdbcType=VARCHAR}	/* 갱신자ID		*/
+				, updusr_ip			= #{updusrIp,		jdbcType=VARCHAR}	/* 갱신자IP		*/
+		</set>
+		WHERE	user_id = #{userId}
+	</update>
+
+
+
+ 	<!-- 사용자 부여 권한이 있는경우에는 업데이트하고, 없는경우에는 신규로 등록한다. -->
+ 	<insert id="saveCmScrt" parameterType ="hashmap">
+ 		MERGE INTO CM_SCRT_T scrt
+ 			USING DUAL ON (scrt.user_id = #{userId})
+ 			WHEN MATCHED THEN
+ 				UPDATE SET authrt_cd = #{authrtCd}
+ 						 , updt_ymd  = to_char(sysdate, 'YYYYMMDD')
+ 						 , updusr_id = #{updusrId}
+ 						 , updusr_ip = #{updusrIp}
+ 			WHEN NOT MATCHED THEN
+				INSERT (user_id, authrt_cd, updt_ymd, updusr_id, updusr_ip)
+				VALUES (#{userId}
+						, #{authrtCd}
+						, to_char(sysdate, 'YYYYMMDD')
+						, #{updusrId}
+						, #{updusrIp}
+						)
+ 	</insert>
+
+	<!-- 사용자 권한 정보를 삭제한다.  -->
+	<delete id="deleteCmScrt" parameterType="hashmap">
+		DELETE 	FROM CM_SCRT_T
+		WHERE	user_id = #{userId}
+	</delete>
+
+
+
+</mapper>
