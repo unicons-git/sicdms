@@ -15,7 +15,7 @@
 			<dt><strong>여러자료를 압축해서 1개의 파일(zip)로 등록합니다.</strong></dt>
 			<dt>자료는 '<strong>등록</strong>'만 가능합니다.</dt>
 			<dt>(*)은 필수 입력 항목입니다.</dt>
-			<dt>문의처 : 담당주무관 ${fn:escapeXml(ccCsmaVo.taskTkcgAoNm)} / 자본금담당주무관 ${fn:escapeXml(ccCsmaVo.cptlTkcgAoNm)}</dt>
+			<dt>문의처 : 담당자 ${fn:escapeXml(ccCsmaVo.taskTkcgAoNm)} / 자본금담당자 ${fn:escapeXml(ccCsmaVo.cptlTkcgAoNm)}</dt>
 		</dl>
 	</div>
 

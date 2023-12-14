@@ -44,9 +44,9 @@
 							<th style="width:60px;">번호</th>
 							<th style="width:100px;">공고일</th>
 							<th style="width:100px;">개찰일</th>
-							<th style="width:100px;">분야</th>
-							<th style="width:250px;">공사명</th>
-							<th style="width:210px;">발주기관</th>
+							<!-- <th style="width:100px;">분야</th> -->
+							<th style="width:300px;">공사명</th>
+							<th style="width:260px;">발주기관</th>
 							<th style="width:120px;">공사금액(억원)</th>
 							<th style="width:*;">순위</th>
 						</tr>
@@ -168,9 +168,9 @@ function selectCcCsmaList(page) {
 									htmlStr += "	<td class='tc'>" 	+ item.seqNo + "</td>";
 									htmlStr += "	<td class='tc'>" 	+ pbancYmd + "</td>";
 									htmlStr += "	<td class='tc'>" 	+ opnbdYmd + "</td>";
-									htmlStr += "	<td class='tc'>" 	+ mfldNm + "</td>";
-									htmlStr += "	<td class='tl'><div class='nowrap' style='width:240px;' title='" + cstrnNm + "'>" + cstrnNm + "</div></td>";
-									htmlStr += "	<td class='tl'><div class='nowrap' style='width:200px;' title='" + podrInstNm + "'>" + podrInstNm + "</div></td>";
+									/* htmlStr += "	<td class='tc'>" 	+ mfldNm + "</td>"; */
+									htmlStr += "	<td class='tl'><div class='nowrap' style='width:290px;' title='" + cstrnNm + "'>" + cstrnNm + "</div></td>";
+									htmlStr += "	<td class='tl'><div class='nowrap' style='width:250px;' title='" + podrInstNm + "'>" + podrInstNm + "</div></td>";
 									htmlStr += "	<td class='tr'>" 	+ cstrnAmt + "</td>";
 									htmlStr += "	<td class='tc'>" 	+ exmnBzentySeNm + "</td>";
 									htmlStr += "</tr>";
