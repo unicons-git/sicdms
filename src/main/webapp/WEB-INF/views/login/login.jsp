@@ -193,8 +193,8 @@ function loginCheck(){
 										<label for="idChk" class="id_check"><input type="checkbox" id="idChk">아이디 저장</label>
 										<div class="clear"></div>
 										<div class="loginComment">
-											<span>아이디는 이메일 형식입니다.</span>
-											<span style="font-weight:bold;">비밀번호 분실 시 문의는 000 주무관(02-2133-8100)</span>
+											<span>아이디는 이메일 형식입니다.</span><br>
+											<!-- <span style="font-weight:bold;">비밀번호 분실 시 문의는 000 주무관(02-2133-8100)</span> -->
 										</div>
 									</div>
 								</form>
