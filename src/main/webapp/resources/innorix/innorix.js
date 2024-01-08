@@ -5,9 +5,9 @@
  *
  * Copyright (C) INNORIX / innorix-dev-team, http://innorix.com
  */
-// 라이선스 유형 : INNORIX WP 111일 체험 (만료 2023-12-31)
+// 라이선스 유형 : INNORIX WP 104일 체험 (만료 2024-03-31)
 
-var INNORIX_LICENSE =  "DMhUDOx/+RoGojh0ECXphlfh5DGpLolyCxk7xMuNCAeJ0nqF8SQtKjJdL0jvHs4dgrMIaHrcSeNY+U28a3WFA5No4Pc=";
+var INNORIX_LICENSE = "rgwvVyJLYKA+HcKL3U8+lES4u1UTQ6mntczgffZjRUtadBNBmmv8qmYcu6qOwOnh/edArIq5/531+vt8lbIPhrpwGVo=";
 
 
 var INNORIX_VERSION = '1.1.3.489';
