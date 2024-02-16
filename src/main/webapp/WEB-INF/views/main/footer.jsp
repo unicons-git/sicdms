@@ -46,7 +46,7 @@ function footerLinkEventHandler() {
             <h2 class="footer__logo"><span>서울특별시</span></h2>
             <div class="footer__addr">
                	서울특별시 중구 세종대로 110 서울특별시청 10층 <br>
-               	재난안전관리실 건설혁신과  02-2133-8107<br>
+               	재난안전관리실 건설혁신과  02-2133-8120<br>
             </div>
             <p class="footer__copy">Copyright &copy; 2023 sicims.seoul.go.kr. All Rights Reserved. </p>
         </div>

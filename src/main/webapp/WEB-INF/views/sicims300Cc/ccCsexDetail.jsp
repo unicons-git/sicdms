@@ -16,6 +16,8 @@
 			<dt>자료는 '<strong>등록</strong>'만 가능합니다.</dt>
 			<dt>(*)은 필수 입력 항목입니다.</dt>
 			<dt>문의처 : 담당자 ${fn:escapeXml(ccCsmaVo.taskTkcgAoNm)} / 자본금담당자 ${fn:escapeXml(ccCsmaVo.cptlTkcgAoNm)}</dt>
+			<!-- <dt><strong>innorix agent 설치 되어야 첨부파일 등록이 가능합니다. </strong>)</dt> -->
+			<dt><strong>첨부파일 등록이 안될경우 innorix agent가 설치 되어 있는지 확인해 주시기 바랍니다.</strong></dt>
 		</dl>
 	</div>
 
