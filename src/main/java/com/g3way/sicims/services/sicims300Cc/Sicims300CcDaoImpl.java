@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
 import com.g3way.sicims.mybatis.mappers.Sicims300CcMapper;
@@ -13,6 +14,7 @@ import com.g3way.sicims.services.sicims300Cc.vo.CcCsmaVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcCsrsVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcIsrdVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcIsrrVo;
+import com.g3way.sicims.services.sicims300Cc.vo.CcMailVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcVcadVo;
 
 
@@ -361,6 +363,13 @@ public class  Sicims300CcDaoImpl implements Sicims300CcDao {
 	@Override
 	public int deleteCcIsrrFile(HashMap<String, Object> param){
 		return sicims300CcMapper.deleteCcIsrrFile(param);
+	}
+
+
+	@Override
+	public CcMailVo getMainInfo(HashMap<String, Object> param) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return sicims300CcMapper.getMainInfo(param);
 	}
 
 

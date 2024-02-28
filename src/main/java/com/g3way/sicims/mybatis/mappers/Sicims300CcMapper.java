@@ -10,7 +10,9 @@ import com.g3way.sicims.services.sicims300Cc.vo.CcCsmaVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcCsrsVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcIsrdVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcIsrrVo;
+import com.g3way.sicims.services.sicims300Cc.vo.CcMailVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcVcadVo;
+
 import egovframework.rte.psl.dataaccess.mapper.Mapper;
 /*
  * 민원관리
@@ -274,5 +276,13 @@ public interface Sicims300CcMapper {
 	 */
 	public int deleteCcIsrrFile(HashMap<String, Object> param) throws DataAccessException;
 
+	/**
+	 * 메일발송할 정보를  조회한다.
+	 * @param param HashMap<String, Object>
+	 * @return CcMailVo
+	 */
+	public CcMailVo getMainInfo(HashMap<String, Object> param) throws DataAccessException;
+
+	
 
 }

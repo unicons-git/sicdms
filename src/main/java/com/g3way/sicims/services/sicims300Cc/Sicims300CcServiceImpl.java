@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -28,6 +30,7 @@ import com.g3way.sicims.services.sicims300Cc.vo.CcCsmaVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcCsrsVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcIsrdVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcIsrrVo;
+import com.g3way.sicims.services.sicims300Cc.vo.CcMailVo;
 import com.g3way.sicims.services.sicims300Cc.vo.CcVcadVo;
 import com.g3way.sicims.util.common.MailUtil;
 import com.g3way.sicims.util.common.SessionUtil;
@@ -446,6 +449,7 @@ public class Sicims300CcServiceImpl implements Sicims300CcService {
 			cmFileVo.setUpdusrIp(ccCsexVo.getUpdusrIp());			// 갱신자IP
 
 			sicims000CmService.insertCmFile(cmFileVo);
+			
 			ccCsexVo.setExmnDataAtflId(cmFileVo.getFileId());
 
 			// 2. 건설업등록기준사전조사 제출상태 변경
@@ -453,14 +457,45 @@ public class Sicims300CcServiceImpl implements Sicims300CcService {
 			param.put("cirsSn", 	ccCsexVo.getCirsSn());
 			param.put("updusrIp", 	ccCsexVo.getUpdusrIp());
 			sicims300CcDao.updateCcCsmaSbmsn(param);
-
 			// 3. 건설업등록기준사전조사자료 등록
-			return sicims300CcDao.insertCcCsex(ccCsexVo);
+			int result = sicims300CcDao.insertCcCsex(ccCsexVo);
+			
+			return result;
 		} catch (DataAccessException e) {
 			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			throw new SicimsException("건설업등록기준사전조사자료 제출 저장 중 오류가 발생하였습니다.");
 		}
 	}
+	
+	@Override
+	public int mailSend(HashMap<String,Object> param) {
+		
+		int result = 0;
+		
+		CcMailVo ccMailVo =   sicims300CcDao.getMainInfo(param);
+		
+		try {
+			// Java Mail
+			// HashMap<String, Object> mailResult = MailUtil.javaMailInfo(javaMailSender, ccMailVo);
+
+			// 서울시 통합메일(릴레이)
+			HashMap<String, Object> mailResult = MailUtil.relayMailInfo(ccMailVo);
+			 result = 1;
+			if (mailResult.get("mailStatus").equals("fail")) {
+				LOG.error((String)mailResult.get("mailMessage"));
+				result = -101;
+			}
+		} catch (MailException e) {
+			LOG.error(e.getMessage());
+			result = -101;
+		} catch (Exception e) {
+			e.printStackTrace();
+			result = -101;
+		}
+		
+		return result;
+	}
+
 
 
 

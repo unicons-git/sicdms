@@ -392,6 +392,24 @@ public class Sicims300CcController {
 
 		return new ModelAndView(jsonView, result);
 	}
+	
+	@RequestMapping(value = "/mailSend", method = RequestMethod.POST)
+	public ModelAndView  mailSend(@RequestParam HashMap<String,Object> param) throws Exception {
+
+		HashMap<String, Object> result = new HashMap<String, Object>();
+
+		try{
+			result.put("result", 	sicims300CcService.mailSend(param));
+		} catch(SicimsException e) {
+			e.printStackTrace();
+			result.put("resultMsg", e.getMessage());
+		} catch(Exception e) {
+			e.printStackTrace();
+			LOG.error("건설업등록기준사전조사자료 등록 중 오류 발생");
+		}
+
+		return new ModelAndView(jsonView, result);
+	}
 
 
 	/********************************/

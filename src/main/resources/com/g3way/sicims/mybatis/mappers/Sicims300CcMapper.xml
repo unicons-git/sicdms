@@ -304,8 +304,10 @@
 	<update id="updateCcCsmaSbmsn" parameterType="hashmap" >
 		UPDATE 	CC_CSMA_T csma
 		SET
-				  sbmsn_stts_cd	= DECODE((SELECT MAX(exmn_data_sbmsn_ymd) FROM CC_CSEX_T cct WHERE cct.cirs_sn = csma.cirs_sn), null, '0002', '0001')
-				, sbmsn_ymd		= (SELECT MAX(exmn_data_sbmsn_ymd) FROM CC_CSEX_T cct WHERE cct.cirs_sn = csma.cirs_sn)
+				<!--   sbmsn_stts_cd	= DECODE((SELECT MAX(exmn_data_sbmsn_ymd) FROM CC_CSEX_T cct WHERE cct.cirs_sn = csma.cirs_sn), null, '0002', '0001')
+				, sbmsn_ymd		= (SELECT MAX(exmn_data_sbmsn_ymd) FROM CC_CSEX_T cct WHERE cct.cirs_sn = csma.cirs_sn) -->
+				sbmsn_stts_cd	=  '0001'
+				, sbmsn_ymd = to_char(SYSDATE, 'yyyymmdd')
 				, updt_ymd 		= to_char(SYSDATE, 'yyyymmdd')			/* 갱신일자		*/
 				, updusr_ip		= #{updusrIp,	jdbcType=VARCHAR}		/* 갱신자IP   	*/
 				, rmrk			= '제출상태 정보 변경'
@@ -1219,5 +1221,35 @@
 				, updusr_ip		= #{updusrIp,	jdbcType=VARCHAR}		/* 갱신자IP   	*/
 		WHERE	rcpt_no = #{rcptNo}
 	</update>
+	
+	<!-- 메일정보 조회한다.  --> 
+	<resultMap id="mailSendResultMap" type="com.g3way.sicims.services.sicims300Cc.vo.CcMailVo" >
+		<result column="cirs_sn"			property="cirsSn"			jdbcType="DECIMAL" />
+		<result column="cstrn_nm"		property="cstrnNm"		jdbcType="VARCHAR" />
+		<result column="exmn_bzenty_pic_nm"	property="exmnBzentyPicNm"		jdbcType="VARCHAR" />
+		<result column="file_id"		property="fileId"		jdbcType="DECIMAL" />
+		<result column="file_orgnl_nm"		property="fileOrgnlNm"		jdbcType="VARCHAR" />
+		<result column="updt_ymd"				property="updtYmd"			jdbcType="VARCHAR" />
+		<result column="eml_addr"				property="emlAddr"			jdbcType="VARCHAR" />
+		<result column="exmn_bzenty_pic_telno"				property="exmnBzentyPicTelno"			jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="getMainInfo" parameterType="hashmap" resultMap="mailSendResultMap">
+			SELECT 
+			  cct.cirs_sn 
+			  ,cct.cstrn_nm 
+			  , cct.exmn_bzenty_pic_nm 
+			  , cct.exmn_bzenty_pic_telno
+			  , cft.file_id 
+			  , cft.file_orgnl_nm 
+			  , cft.updt_ymd 
+			  , cut.eml_addr
+		  FROM CC_CSMA_T cct 
+		  JOIN CC_CSEX_T cct2 ON (cct.CIRS_SN = cct2.CIRS_SN)
+		  JOIN CM_USER_T cut on(cut.USER_NM = cct.TASK_TKCG_AO_NM)
+		  JOIN CM_FILE_T cft  ON (cct2.EXMN_DATA_ATFL_ID = cft.FILE_ID)
+		  WHERE cct.cirs_sn = #{cirsSn}
+		  AND cft.FILE_ID  = #{fileId}
+ 	</select>
 
 </mapper>

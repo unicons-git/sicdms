@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -269,7 +270,6 @@ public interface Sicims300CcService {
 	 */
 	public int deleteCcIsrrFile(HashMap<String, Object> param);
 
-
-
+	public int mailSend(@RequestParam HashMap<String,Object> param);
 
 }

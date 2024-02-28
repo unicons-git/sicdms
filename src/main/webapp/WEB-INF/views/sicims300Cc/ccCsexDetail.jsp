@@ -179,6 +179,27 @@ function insertCcCsex() {
 		type		: 	"post",
 		dataType	: 	"json",
 		success 	: 	function(data, textStatus){
+							if (data.result > 0) {
+								/* g3way.sicims.common.messageBox(null, "건설업등록기준사전조사자료 등록 성공", "건설업등록기준사전조사자료가 등록되었습니다.", null);
+								getCcCsexList("${fn:escapeXml(info.cirsSn)}"); */
+								mailSend(data);
+							} else {
+								g3way.sicims.common.messageBox(null, "건설업등록기준사전조사자료 등록  실패", "건설업등록기준사전조사자료 등록에 실패했습니다.", null);
+							}
+						},
+	}).submit();
+}
+
+function mailSend(data) {
+	$.ajax({
+		url			:	"<c:url value='/sicims300Cc/mailSend.do'/>",
+		data		:	{
+						cirsSn		: data.ccCsexVo.cirsSn,
+						fileId	: data.ccCsexVo.exmnDataAtflId,
+						},
+		dataType	:	"json",
+		type		:	"POST",
+		success		: 	function(data, textStatus, XMLHttpRequest){
 							fnLoadingEnd();
 							if (data.result > 0) {
 								g3way.sicims.common.messageBox(null, "건설업등록기준사전조사자료 등록 성공", "건설업등록기준사전조사자료가 등록되었습니다.", null);
@@ -187,10 +208,8 @@ function insertCcCsex() {
 								g3way.sicims.common.messageBox(null, "건설업등록기준사전조사자료 등록  실패", "건설업등록기준사전조사자료 등록에 실패했습니다.", null);
 							}
 						},
-	}).submit();
+	});
 }
-
-
 
 
 // 불법하도급신고 결과 정보 삭제
